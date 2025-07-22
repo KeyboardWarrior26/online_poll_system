@@ -1,0 +1,17 @@
+<h1>{{ question.question_text }}</h1>
+
+<ul>
+  {% for choice in question.choice_set.all %}
+    <li>
+      {{ choice.choice_text }} — {{ choice.votes }} vote{{ choice.votes|pluralize }}
+      {% if total_votes > 0 %}
+        ({{ choice.percentage }}%)
+      {% endif %}
+    </li>
+  {% endfor %}
+</ul>
+
+<p>Total votes: {{ total_votes }}</p>
+
+<a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+
