@@ -1,28 +1,16 @@
-# Python cache
+# Ignore virtual environment
+venv/
+
+# Byte-compiled / cache files
 __pycache__/
 *.py[cod]
 
-# Environment variables
-.env
+# Django stuff:
+*.sqlite3
 
-# SQLite database
-db.sqlite3
-
-# VS Code settings
+# VSCode or other IDE settings
 .vscode/
 
-# Django migrations
-*/migrations/*.py
-*/migrations/__pycache__/
-
-# Byte-compiled / optimized / DLL files
-*.pyc
-*.pyo
-*.pyd
-
-# macOS files
+# MacOS and Linux files
 .DS_Store
 
-# Virtual environment
-env/
-venv/
