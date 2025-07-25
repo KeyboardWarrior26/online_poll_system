@@ -1,7 +1,7 @@
-from rest_framework.generics import RetrieveAPIView
-from rest_framework import generics, status
+from rest_framework.generics import RetrieveAPIView, ListCreateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
+from rest_framework import status
 from django.shortcuts import get_object_or_404
 from django.db.models import Count
 from .models import Question, Choice, Vote
@@ -15,9 +15,10 @@ from .serializers import (
 class QuestionDetailAPIView(RetrieveAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
+    lookup_url_kwarg = 'question_id'  # This tells DRF to use question_id from URL
 
 
-class QuestionListCreateAPIView(generics.ListCreateAPIView):
+class QuestionListCreateAPIView(ListCreateAPIView):
     queryset = Question.objects.all()
 
     def get_serializer_class(self):
@@ -27,8 +28,8 @@ class QuestionListCreateAPIView(generics.ListCreateAPIView):
 
 
 class VoteAPIView(APIView):
-    def post(self, request, pk):
-        question = get_object_or_404(Question, pk=pk)
+    def post(self, request, question_id):
+        question = get_object_or_404(Question, pk=question_id)
         choice_id = request.data.get('choice_id')
 
         if not choice_id:
@@ -50,12 +51,11 @@ class VoteAPIView(APIView):
 
 
 class ResultAPIView(APIView):
-    def get(self, request, pk):
-        question = get_object_or_404(Question, pk=pk)
+    def get(self, request, question_id):
+        question = get_object_or_404(Question, pk=question_id)
 
         # Annotate vote counts
         choices = question.choices.annotate(vote_count=Count('votes'))
-
         total_votes = sum([c.vote_count for c in choices]) or 0
 
         results = []
