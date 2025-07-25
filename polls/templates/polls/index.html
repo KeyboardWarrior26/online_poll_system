@@ -1,8 +1,9 @@
-<h1>Available Polls</h1>
+<h1>Latest Polls</h1>
 <ul>
-  {% for question in latest_question_list %}
+  {% for question in latest_questions %}
     <li><a href="{% url 'polls:detail' question.id %}">{{ question.question_text }}</a></li>
   {% empty %}
-    <li>No polls are available.</li>
+    <li>No polls available.</li>
   {% endfor %}
 </ul>
+

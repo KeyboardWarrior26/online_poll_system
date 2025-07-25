@@ -1,17 +1,23 @@
-<h1>{{ question.question_text }}</h1>
+<!DOCTYPE html>
+<html>
+<head>
+  <title>Results for: {{ question.question_text }}</title>
+</head>
+<body>
+  <h1>Results for: {{ question.question_text }}</h1>
 
-<ul>
-  {% for choice in question.choice_set.all %}
-    <li>
-      {{ choice.choice_text }} — {{ choice.votes }} vote{{ choice.votes|pluralize }}
-      {% if total_votes > 0 %}
+  <ul>
+    {% for choice in choices %}
+      <li>
+        {{ choice.choice_text }} — {{ choice.vote_count }} votes
         ({{ choice.percentage }}%)
-      {% endif %}
-    </li>
-  {% endfor %}
-</ul>
+      </li>
+    {% endfor %}
+  </ul>
 
-<p>Total votes: {{ total_votes }}</p>
+  <p><strong>Total votes:</strong> {{ total_votes }}</p>
 
-<a href="{% url 'polls:detail' question.id %}">Vote again?</a>
+  <a href="{% url 'polls:detail' question.id %}">Vote again</a>
+</body>
+</html>
 
