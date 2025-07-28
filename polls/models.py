@@ -1,5 +1,6 @@
 from django.db import models
 from django.utils import timezone
+from django.contrib.auth.models import User
 import datetime
 
 class Question(models.Model):
@@ -25,7 +26,7 @@ class Choice(models.Model):
     question = models.ForeignKey(
         Question,
         on_delete=models.CASCADE,
-        related_name='choices'  # used in views like `question.choices.all()`
+        related_name='choices'
     )
     choice_text = models.CharField(max_length=200)
 
@@ -37,10 +38,18 @@ class Vote(models.Model):
     choice = models.ForeignKey(
         Choice,
         on_delete=models.CASCADE,
-        related_name='votes'  # used in view to annotate Count('votes')
+        related_name='votes'
+    )
+    user = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='votes'
     )
     voted_at = models.DateTimeField(auto_now_add=True)
 
+    class Meta:
+        unique_together = ('user', 'choice')
+
     def __str__(self):
-        return f"Vote for: {self.choice.choice_text} at {self.voted_at}"
+        return f"{self.user.username} voted for: {self.choice.choice_text} at {self.voted_at}"
 

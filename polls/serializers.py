@@ -4,7 +4,7 @@ from .models import Question, Choice
 class ChoiceSerializer(serializers.ModelSerializer):
     class Meta:
         model = Choice
-        fields = ['id', 'choice_text']  # No 'votes' field here because votes are counted separately
+        fields = ['id', 'choice_text']  # 'votes' omitted for basic listing
 
 class ChoiceCreateSerializer(serializers.ModelSerializer):
     class Meta:
@@ -12,7 +12,7 @@ class ChoiceCreateSerializer(serializers.ModelSerializer):
         fields = ['choice_text']
 
 class QuestionSerializer(serializers.ModelSerializer):
-    choices = ChoiceSerializer(many=True, read_only=True, source='choices')  # use related_name='choices'
+    choices = ChoiceSerializer(many=True, read_only=True)  # ✅ Fixed: removed 'source'
 
     class Meta:
         model = Question
@@ -51,7 +51,6 @@ class QuestionResultSerializer(serializers.ModelSerializer):
         fields = ['id', 'question_text', 'choices', 'total_votes']
 
     def get_choices(self, obj):
-        # Access the annotated choices passed in context from the view
         choices = self.context.get('choices')
         return ChoiceResultSerializer(choices, many=True).data
 

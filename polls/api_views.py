@@ -1,9 +1,12 @@
 from rest_framework.generics import RetrieveAPIView, ListCreateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework import status
+from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework import status, filters
+from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
-from django.db.models import Count
+from django.db.models import Count, Q
+
 from .models import Question, Choice, Vote
 from .serializers import (
     QuestionSerializer,
@@ -12,14 +15,20 @@ from .serializers import (
 )
 
 
-class QuestionDetailAPIView(RetrieveAPIView):
-    queryset = Question.objects.all()
-    serializer_class = QuestionSerializer
-    lookup_url_kwarg = 'question_id'  # This tells DRF to use question_id from URL
+class QuestionPagination(PageNumberPagination):
+    page_size = 10
+    page_size_query_param = 'page_size'
+    max_page_size = 100
 
 
 class QuestionListCreateAPIView(ListCreateAPIView):
     queryset = Question.objects.all()
+    pagination_class = QuestionPagination
+    filter_backends = [filters.SearchFilter, filters.OrderingFilter]
+    search_fields = ['question_text']
+    ordering_fields = ['pub_date']
+    ordering = ['-pub_date']
+
 
     def get_serializer_class(self):
         if self.request.method == 'POST':
@@ -27,8 +36,17 @@ class QuestionListCreateAPIView(ListCreateAPIView):
         return QuestionSerializer
 
 
+class QuestionDetailAPIView(RetrieveAPIView):
+    queryset = Question.objects.all()
+    serializer_class = QuestionSerializer
+    lookup_url_kwarg = 'question_id'
+
+
 class VoteAPIView(APIView):
+    permission_classes = [IsAuthenticated]
+
     def post(self, request, question_id):
+        user = request.user
         question = get_object_or_404(Question, pk=question_id)
         choice_id = request.data.get('choice_id')
 
@@ -46,15 +64,21 @@ class VoteAPIView(APIView):
                 status=status.HTTP_404_NOT_FOUND
             )
 
-        Vote.objects.create(choice=choice)
+        # Check if the user already voted for this question
+        if Vote.objects.filter(user=user, choice__question=question).exists():
+            return Response(
+                {"error": "You have already voted for this question."},
+                status=status.HTTP_403_FORBIDDEN
+            )
+
+        # Create vote
+        Vote.objects.create(user=user, choice=choice)
         return Response({"message": "Vote counted."}, status=status.HTTP_201_CREATED)
 
 
 class ResultAPIView(APIView):
     def get(self, request, question_id):
         question = get_object_or_404(Question, pk=question_id)
-
-        # Annotate vote counts
         choices = question.choices.annotate(vote_count=Count('votes'))
         total_votes = sum([c.vote_count for c in choices]) or 0
 
