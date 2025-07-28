@@ -3,7 +3,11 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 import datetime
 
+
 class Question(models.Model):
+    """
+    Model representing a poll question.
+    """
     question_text = models.CharField(max_length=200)
     pub_date = models.DateTimeField('date published')
     expiry_date = models.DateTimeField('expiry date', null=True, blank=True)
@@ -23,6 +27,9 @@ class Question(models.Model):
 
 
 class Choice(models.Model):
+    """
+    Model representing a choice linked to a specific poll question.
+    """
     question = models.ForeignKey(
         Question,
         on_delete=models.CASCADE,
@@ -35,6 +42,9 @@ class Choice(models.Model):
 
 
 class Vote(models.Model):
+    """
+    Model representing a user's vote for a particular choice.
+    """
     choice = models.ForeignKey(
         Choice,
         on_delete=models.CASCADE,
@@ -48,7 +58,7 @@ class Vote(models.Model):
     voted_at = models.DateTimeField(auto_now_add=True)
 
     class Meta:
-        unique_together = ('user', 'choice')
+        unique_together = ('user', 'choice')  # Prevent duplicate votes per choice per user
 
     def __str__(self):
         return f"{self.user.username} voted for: {self.choice.choice_text} at {self.voted_at}"
