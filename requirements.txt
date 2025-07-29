@@ -5,6 +5,7 @@ django-extensions==4.1
 django-filter==25.1
 djangorestframework==3.16.0
 drf-yasg==1.21.10
+gunicorn==23.0.0
 inflection==0.5.1
 jsonschema==4.25.0
 jsonschema-specifications==2025.4.1

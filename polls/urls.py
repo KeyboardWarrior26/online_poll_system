@@ -1,3 +1,4 @@
+from .views import health_check
 from .api_views import VoteTrendsAPIView
 from django.urls import path
 from . import views
@@ -11,6 +12,9 @@ from .api_views import (
 app_name = 'polls'
 
 urlpatterns = [
+    path('health/', views.health_check, name='health-check'),
+
+
     # Traditional HTML views (optional)
     path('<int:question_id>/results/', views.results, name='results'),
     path('<int:question_id>/vote/', views.vote, name='vote'),

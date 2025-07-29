@@ -21,12 +21,12 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 # See https://docs.djangoproject.com/en/5.2/howto/deployment/checklist/
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-y23xhmhyt7)u_e(((fv9mkx7*x(-bl1&7zo#5l$k004wu*z4pn'
+SECRET_KEY = os.getenv("SECRET_KEY", "your-dev-secret-here")
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = os.getenv("DEBUG", "False") == "True"
 
-ALLOWED_HOSTS = ['your-service.onrender.com', 'localhost', '127.0.0.1']
+ALLOWED_HOSTS = os.getenv("ALLOWED_HOSTS", "localhost").split(",")
 
 
 # Application definition
@@ -149,3 +149,6 @@ REST_FRAMEWORK = {
     'PAGE_SIZE': 5,
 }
 
+# Security best practices
+SECURE_PROXY_SSL_HEADER = ("HTTP_X_FORWARDED_PROTO", "https")
+CSRF_TRUSTED_ORIGINS = ["https://" + host for host in ALLOWED_HOSTS if host != "localhost"]

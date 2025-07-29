@@ -1,3 +1,4 @@
+from django.http import JsonResponse
 from rest_framework.generics import RetrieveAPIView, ListCreateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
@@ -15,6 +16,9 @@ from .serializers import (
     QuestionCreateSerializer,
     QuestionResultSerializer,
 )
+
+def health_check(request):
+    return JsonResponse({'status': 'ok'})
 
 class QuestionPagination(PageNumberPagination):
     page_size = 10
