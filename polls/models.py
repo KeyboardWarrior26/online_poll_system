@@ -9,7 +9,7 @@ class Question(models.Model):
     Model representing a poll question.
     """
     question_text = models.CharField(max_length=200)
-    pub_date = models.DateTimeField('date published')
+    pub_date = models.DateTimeField('date published', auto_now_add=True)
     expiry_date = models.DateTimeField('expiry date', null=True, blank=True)
 
     def __str__(self):

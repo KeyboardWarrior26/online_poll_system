@@ -1,7 +1,7 @@
 from rest_framework.generics import RetrieveAPIView, ListCreateAPIView
 from rest_framework.views import APIView
 from rest_framework.response import Response
-from rest_framework.permissions import IsAuthenticatedOrReadOnly, IsAuthenticated
+from rest_framework.permissions import IsAuthenticated
 from rest_framework import status, filters
 from rest_framework.pagination import PageNumberPagination
 from django.shortcuts import get_object_or_404
@@ -16,12 +16,10 @@ from .serializers import (
     QuestionResultSerializer,
 )
 
-
 class QuestionPagination(PageNumberPagination):
     page_size = 10
     page_size_query_param = 'page_size'
     max_page_size = 100
-
 
 class QuestionListCreateAPIView(ListCreateAPIView):
     queryset = Question.objects.all()
@@ -37,10 +35,10 @@ class QuestionListCreateAPIView(ListCreateAPIView):
 
         if status_param == 'active':
             queryset = queryset.filter(
-                Q(expiry_date__gt=timezone.now()) | Q(expiry_date__isnull=True)
+                Q(end_date__gt=timezone.now()) | Q(end_date__isnull=True)
             )
         elif status_param == 'expired':
-            queryset = queryset.filter(expiry_date__lte=timezone.now())
+            queryset = queryset.filter(end_date__lte=timezone.now())
 
         return queryset
 
@@ -49,12 +47,10 @@ class QuestionListCreateAPIView(ListCreateAPIView):
             return QuestionCreateSerializer
         return QuestionSerializer
 
-
 class QuestionDetailAPIView(RetrieveAPIView):
     queryset = Question.objects.all()
     serializer_class = QuestionSerializer
     lookup_url_kwarg = 'question_id'
-
 
 class VoteAPIView(APIView):
     permission_classes = [IsAuthenticated]
@@ -87,7 +83,6 @@ class VoteAPIView(APIView):
         Vote.objects.create(user=user, choice=choice)
         return Response({"message": "Vote counted."}, status=status.HTTP_201_CREATED)
 
-
 class ResultAPIView(APIView):
     def get(self, request, question_id):
         question = get_object_or_404(Question, pk=question_id)
@@ -112,16 +107,20 @@ class ResultAPIView(APIView):
             "results": results
         })
 
-
 class VoteTrendsAPIView(APIView):
     def get(self, request, question_id):
         question = get_object_or_404(Question, pk=question_id)
-        period = request.query_params.get('period', 'day')  # default to 'day'
+        period = request.query_params.get('period', 'day')
 
         if period == 'week':
             trunc_func = TruncWeek
-        else:
+        elif period == 'day':
             trunc_func = TruncDay
+        else:
+            return Response(
+                {"error": "Invalid period parameter. Use 'day' or 'week'."},
+                status=status.HTTP_400_BAD_REQUEST
+            )
 
         votes = (
             Vote.objects

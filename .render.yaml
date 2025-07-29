@@ -1,0 +1,11 @@
+services:
+  - type: web
+    name: polls-api
+    env: python
+    buildCommand: pip install -r requirements.txt
+    startCommand: gunicorn polls_api.wsgi:application
+    envVars:
+      - key: DEBUG
+        value: False
+      - key: DJANGO_SECRET_KEY
+        generateValue: true
