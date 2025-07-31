@@ -231,4 +231,23 @@ polling_system/
 ├── README.md                # Project overview & setup guide
 ├── manage.py
 
-✅ **Project Complete** — All core features, optimizations, and documentation objectives have been met.
+---
+
+
+## Deployment
+
+The Online Poll System Backend is deployed remotely on an EC2 instance and is accessible to users and evaluators.
+
+- **Live API Documentation:**  
+  [http://mypollapp.ddns.net/api/docs/](http://mypollapp.ddns.net/api/docs/)
+
+- **Server Setup:**  
+  Gunicorn serves the Django application via a Unix socket, and Nginx proxies incoming requests and serves static files.
+
+- **Configuration Differences:**  
+  The remote deployment configuration uses `DEBUG=False` and manages static files differently from local development to ensure production readiness.
+
+---
+
+
+**Project Complete** — All core features, optimizations, and documentation objectives have been met.
