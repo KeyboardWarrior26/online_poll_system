@@ -14,7 +14,6 @@ from .models import Question, Choice, Vote
 from .serializers import (
     QuestionSerializer,
     QuestionCreateSerializer,
-    QuestionResultSerializer,
 )
 
 def health_check(request):
